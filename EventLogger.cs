@@ -41,6 +41,12 @@ public class EventLogger
 
     public void SaveToFile(string filePath)
     {
+        // Arayüz dışında çağrılsa da boş liste mevcut dosyayı silemez.
+        if (records.Count == 0)
+        {
+            throw new InvalidOperationException("Kaydedilecek tuş olayı bulunmuyor.");
+        }
+
         // Her kaydı TXT dosyasında ayrı bir satıra dönüştürüyoruz.
         List<string> lines = new List<string>();
         foreach (KeyRecord record in records)

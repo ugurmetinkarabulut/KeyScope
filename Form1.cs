@@ -13,6 +13,7 @@ public class Form1 : Form
     private readonly ListBox recordList = new ListBox();
     private readonly Button startButton = new Button();
     private readonly Button stopButton = new Button();
+    private readonly Button saveButton = new Button();
 
     public Form1()
     {
@@ -53,7 +54,8 @@ public class Form1 : Form
 
         countLabel.SetBounds(18, 52, 310, 26);
         summaryPanel.Controls.Add(countLabel);
-        lastKeyLabel.SetBounds(350, 52, 370, 26);
+        lastKeyLabel.SetBounds(350, 52, 456, 26);
+        lastKeyLabel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
         summaryPanel.Controls.Add(lastKeyLabel);
 
         Label listTitle = new Label();
@@ -81,12 +83,11 @@ public class Form1 : Form
         ConfigureButton(clearButton, "Temizle", 320, Color.FromArgb(51, 65, 85));
         clearButton.Click += ClearButton_Click;
 
-        Button saveButton = new Button();
         ConfigureButton(saveButton, "Kaydet", 466, Color.FromArgb(29, 78, 216));
         saveButton.Click += SaveButton_Click;
 
         Label scopeLabel = new Label();
-        scopeLabel.Text = "Yalnızca bu pencere aktifken tuş olayları kaydedilir. Başlamak için Başlat'a tıklayın.";
+        scopeLabel.Text = "Yalnızca bu pencere aktifken tuş olayları kaydedilir.";
         scopeLabel.ForeColor = Color.FromArgb(148, 163, 184);
         scopeLabel.SetBounds(28, 552, 824, 30);
         scopeLabel.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
@@ -114,7 +115,7 @@ public class Form1 : Form
     private void Form1_KeyDown(object? sender, KeyEventArgs e)
     {
         // Yalnızca kendi formumuz aktifken gelen olayları kabul ediyoruz.
-        if (ActiveForm != this || !ContainsFocus)
+        if (ActiveForm != this || !ContainsFocus || !Enabled)
         {
             return;
         }
@@ -129,6 +130,7 @@ public class Form1 : Form
         recordList.TopIndex = recordList.Items.Count - 1;
         countLabel.Text = "Toplam tuş: " + logger.Count;
         lastKeyLabel.Text = "Son tuş: " + record.KeyName;
+        UpdateRecordingStatus();
     }
 
     private void StartButton_Click(object? sender, EventArgs e)
@@ -150,10 +152,17 @@ public class Form1 : Form
         recordList.Items.Clear();
         countLabel.Text = "Toplam tuş: 0";
         lastKeyLabel.Text = "Son tuş: —";
+        UpdateRecordingStatus();
     }
 
     private void SaveButton_Click(object? sender, EventArgs e)
     {
+        // Boş liste için dosya seçimi açmıyoruz.
+        if (logger.Count == 0)
+        {
+            return;
+        }
+
         using SaveFileDialog dialog = new SaveFileDialog();
         dialog.Title = "Tuş kayıtlarını kaydet";
         dialog.Filter = "Metin dosyası (*.txt)|*.txt";
@@ -194,5 +203,12 @@ public class Form1 : Form
 
         startButton.Enabled = !logger.IsRecording;
         stopButton.Enabled = logger.IsRecording;
+        saveButton.Enabled = logger.Count > 0;
+
+        // Pasif butonları gri göstererek kullanılabilir durumları ayırıyoruz.
+        Color disabledColor = Color.FromArgb(51, 65, 85);
+        startButton.BackColor = startButton.Enabled ? Color.FromArgb(21, 128, 61) : disabledColor;
+        stopButton.BackColor = stopButton.Enabled ? Color.FromArgb(185, 28, 28) : disabledColor;
+        saveButton.BackColor = saveButton.Enabled ? Color.FromArgb(29, 78, 216) : disabledColor;
     }
 }

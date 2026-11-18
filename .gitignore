@@ -4,3 +4,6 @@ obj/
 .DS_Store
 *.user
 *.suo
+
+# Kullanıcının dışa aktardığı tuş kayıtlarını depoya ekleme.
+*.txt

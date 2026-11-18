@@ -18,6 +18,8 @@ C#, .NET 10 ve Windows Forms. Arayüz kod üzerinden oluşturulur; harici tasar�
 - Temizle ile hem bellek hem ekran kayıtlarını ve göstergeleri sıfırlama.
 - Kaydet ile kullanıcının seçtiği TXT dosyasına dışa aktarma; iptal ve hata yönetimi.
 
+Liste boşken Kaydet pasiftir. İlk kayıtla etkinleşir, Temizle sonrasında yeniden pasif olur. Boş listeyle dosya yazımı kayıt sınıfında da engellenir; mevcut dosyanın yanlışlıkla boşaltılması önlenir. Dışa aktarılan `*.txt` dosyaları Git tarafından yok sayılır.
+
 Temizle kayıt durumunu değiştirmez. Durdur eski kayıtları silmez. Tuşu basılı tutunca Windows'un ürettiği tekrarlanan KeyDown olayları ayrı ayrı sayılır. Kaydedilen bilgi tuş kodunun adıdır; yazılmış metin veya klavye düzenine göre üretilen karakter değildir. Windows Forms bazı gezinme/kısayol tuşlarını kontrol komutu olarak işleyebilir; yalnızca forma ulaşan KeyDown olayları kaydedilir.
 
 ## Güvenlik kapsamı
@@ -27,7 +29,7 @@ Yalnızca KeyScope penceresine gelen olaylar kullanılır; form aktif değilken 
 ## Windows üzerinde çalıştırma
 
 1. Windows 10/11 bilgisayara .NET 10 SDK kurun.
-2. Terminali proje klasöründe açın.
+2. [GitHub deposundan](https://github.com/ugurmetinkarabulut/KeyScope) **Code → Download ZIP** ile indirip arşivi açın. Alternatif: `git clone https://github.com/ugurmetinkarabulut/KeyScope.git`. Terminali indirilen proje klasöründe açın.
 3. `dotnet restore KeyScope.sln` komutunu çalıştırın.
 4. `dotnet build KeyScope.sln` komutunu çalıştırın.
 5. `dotnet run --project KeyScope.csproj` komutunu çalıştırın.
@@ -57,4 +59,4 @@ Henüz eklenmedi. Aşağıdaki iki görüntü Windows üzerinde gerçek uygulama
 
 ## GitHub
 
-Yerel kaynak dosyaları GitHub'a yüklemeye hazırlanır. Uzak depo oluşturma ve push ayrı bir talimatla yapılacaktır.
+Repository: [ugurmetinkarabulut/KeyScope](https://github.com/ugurmetinkarabulut/KeyScope). Ana dal `main`'dir.

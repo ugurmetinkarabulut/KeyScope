@@ -30,7 +30,7 @@ Arayüzden bağımsız kayıt yönetimidir. Formdaki `private readonly EventLogg
 
 ## 8. Kayıtları TXT dosyasına nasıl yazıyoruz?
 
-`SaveToFile()` içindeki `foreach (KeyRecord record in records)` döngüsü her nesneyi `lines.Add(record.ToString())` ile metne dönüştürür. `File.WriteAllLines(filePath, lines)` bunları ayrı satırlara yazar. İşlem sadece Kaydet üzerinden çağrılır. Seçilen mevcut dosya, diyalogdaki üzerine yazma onayı sonrası değiştirilir.
+`SaveToFile()` önce `records.Count == 0` kontrolüyle boş listeyi reddeder. `foreach (KeyRecord record in records)` döngüsü her nesneyi `lines.Add(record.ToString())` ile metne dönüştürür. `File.WriteAllLines(filePath, lines)` bunları ayrı satırlara yazar. İşlem sadece Kaydet üzerinden çağrılır. Seçilen mevcut dosya, diyalogdaki üzerine yazma onayı sonrası değiştirilir.
 
 ## 9. SaveFileDialog ne işe yarar?
 
@@ -46,4 +46,30 @@ Nesne oluşturulurken çalışan, sınıfla aynı adlı metottur. `public KeyRec
 
 ## 12. Uygulama neden başka pencerelerdeki tuşları kaydetmez?
 
-Yalnızca formun `KeyDown` olayına aboneyiz. Global klavye dinleyicisi yoktur. Ayrıca `if (ActiveForm != this || !ContainsFocus)` koşulu ana form aktif değilken metottan çıkar. `KeyPreview` sadece formun kendi alt kontrollerini kapsar. Başlat açık kalsa bile başka uygulamadaki tuşlar kaydedilmez.
+Yalnızca formun `KeyDown` olayına aboneyiz. Global klavye dinleyicisi yoktur. `if (ActiveForm != this || !ContainsFocus || !Enabled)` koşulu ana form aktif değilse, odak kendisinde/alt kontrollerinde değilse veya form devre dışıysa metottan çıkar. Modal diyaloglar açıkken ana form devre dışıdır. `KeyPreview` sadece formun kendi alt kontrollerini kapsar. Başlat açık kalsa bile başka uygulamadaki tuşlar kaydedilmez.
+
+## 13. Class, Object, public ve private
+
+`EventLogger` bir class (sınıf), `new EventLogger()` ile oluşturduğumuz `logger` bir object'tir (nesne). `public void Start()` formdan çağrılabilir. `private readonly List<KeyRecord> records` yalnızca EventLogger içinde kullanılabilir. Böylece form listeyi doğrudan değiştiremez.
+
+## 14. get ve private set
+
+`IsRecording { get; private set; }` dışarıdan okunabilir ama yalnızca kendi sınıfından değiştirilebilir. Form `logger.IsRecording` değerini okuyabilir, ona doğrudan değer atayamaz. `KeyName { get; }` constructor'da atanır ve sonradan değiştirilemez.
+
+## 15. ToString ve override
+
+Her nesnenin metin karşılığını veren bir `ToString()` metodu vardır. `public override string ToString()` ile KeyRecord için bu davranışı değiştiririz. Böylece ListBox'a nesnenin kendisini eklediğimizde sınıf adı yerine tarih ve tuş adı görünür.
+
+## 16. Boş kayıtları nasıl engelliyoruz?
+
+`saveButton` form alanıdır; farklı olay metotları aynı butona erişebilir. `UpdateRecordingStatus()` içindeki `saveButton.Enabled = logger.Count > 0;` ilk kayıt ve Temizle sonrasında da çalışır. Kaydet olayında ikinci bir boşluk kontrolü vardır. Modelde `throw new InvalidOperationException(...)` ise boş listeyle dosya yazılmasını engeller; hata oluşursa formdaki catch bunu gösterebilir.
+
+## Öğretmenin isteyebileceği beş küçük değişiklik
+
+Bu örnekler alıştırmadır; uygulamaya eklenmemiştir.
+
+1. **Tarihte saniyeden sonra milisaniye göster.** KeyRecord.ToString içindeki biçimi `"yyyy-MM-dd HH:mm:ss.fff"` yap.
+2. **Kayıtları dosyada en yeniden eskiye yaz.** SaveToFile içindeki foreach yerine `for (int i = records.Count - 1; i >= 0; i--) { lines.Add(records[i].ToString()); }` kullan. Ekrandaki sıra değişmez.
+3. **Son tuş göstergesinin adını değiştir.** Form1'deki üç `"Son tuş: ..."` metnini `"Son basılan: ..."` olarak değiştir; başlangıç, ekleme ve Temizle birbiriyle tutarlı kalır.
+4. **Başlangıç pencere boyutunu değiştir.** Form1 constructor'ındaki `ClientSize = new Size(880, 600);` satırını `new Size(960, 640)` olarak değiştir. Anchor ayarları listeyi büyütür.
+5. **Shift olaylarını listeye ekleme.** Form1_KeyDown'da AddRecord çağrısından önce `if (e.KeyCode == Keys.ShiftKey) { return; }` ekle. Böylece Shift kendi başına sayılmaz; diğer tuşlar normal kaydedilir.
